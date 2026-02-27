@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eksplorasi Galaksi - Index Lengkap</title>
+    <style>
+        :root {
+            --primary-blue: #0077b6;
+            --dark-blue: #03045e;
+            --light-blue: #90e0ef;
+            --space-black: #020205;
+            --andromeda-purple: #7b2cbf;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            background-color: var(--space-black);
+            color: white;
+            text-align: center;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(white, rgba(255,255,255,.1) 1px, transparent 20px);
+            background-size: 80px 80px;
+            z-index: -1;
+            opacity: 0.4;
+        }
+
+        .container { max-width: 1200px; margin: auto; padding: 40px 20px; }
+        .hidden { display: none !important; }
+
+        /* Animasi */
+        .page-transition { animation: slideIn 0.5s ease-out; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        h1 { font-size: 2.8rem; text-shadow: 0 0 20px var(--primary-blue); }
+        .subtitle { color: var(--light-blue); margin-bottom: 40px; }
+
+        /* Card Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background: rgba(3, 4, 94, 0.4);
+            border: 2px solid var(--primary-blue);
+            border-radius: 20px;
+            padding: 25px;
+            cursor: pointer;
+            transition: 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .card:hover { 
+            transform: scale(1.03);
+            box-shadow: 0 0 30px var(--primary-blue);
+        }
+
+        .card img { width: 100%; height: 180px; object-fit: contain; margin-bottom: 15px; }
+        .card.andromeda-theme { border-color: var(--andromeda-purple); }
+
+        /* Navigasi */
+        .btn-back {
+            background: none; border: 2px solid var(--light-blue); color: var(--light-blue);
+            padding: 10px 25px; border-radius: 50px; cursor: pointer; margin-bottom: 30px;
+        }
+        .btn-back:hover { background: var(--light-blue); color: var(--dark-blue); }
+
+        /* Modal Index */
+        .modal {
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0;
+            width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(15px);
+        }
+
+        .modal-content {
+            background: #0a1128; margin: 5% auto; padding: 35px;
+            border: 1px solid var(--light-blue); width: 85%; max-width: 500px; border-radius: 25px;
+        }
+
+        .index-table { width: 100%; margin-top: 20px; text-align: left; border-collapse: collapse; }
+        .index-table td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .index-table td:first-child { color: var(--light-blue); font-weight: bold; width: 40%; }
+        
+        .modal-img { width: 150px; height: 150px; animation: spin 40s linear infinite; margin-bottom: 15px; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="stars"></div>
+
+    <div id="page-home" class="container page-transition">
+        <h1>PENJELAJAH GALAKSI</h1>
+        <p class="subtitle">Pilih tujuan untuk melihat index benda langit</p>
+        <div class="grid">
+            <div class="card" onclick="goToGalaxy('milkyway')">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQjVJQ_FbPOmNgot8dtK7TWyZCYQXySQAoC6nEQQK_U6A&s=10">
+                <h2>Bimasakti</h2>
+                <p>Index Tata Surya Kita</p>
+            </div>
+            <div class="card andromeda-theme" onclick="goToGalaxy('andromeda')">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/9/98/Andromeda_Galaxy_%28with_h-alpha%29.jpg">
+                <h2>Andromeda</h2>
+                <p>Index Galaksi Tetangga</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-content" class="container hidden page-transition">
+        <button class="btn-back" onclick="goHome()">⬅ Kembali ke Peta</button>
+        <h2 id="display-title"></h2>
+        <div class="grid" id="item-grid"></div>
+    </div>
+
+    <div id="infoModal" class="modal">
+        <div class="modal-content">
+            <div id="modal-body"></div>
+            <button class="btn-back" onclick="closeModal()" style="margin-top:20px">Tutup Index</button>
+        </div>
+    </div>
+
+    <script>
+        const galaxyData = {
+            milkyway: {
+                title: "Index Galaksi Bimasakti",
+                items: [
+                    { n: "Matahari", u: "Pusat", s: "1,392,700 km", a: "Fotosfer (H & He)", d: "Bintang pusat pemberi cahaya.", img: "https://upload.wikimedia.org/wikipedia/commons/b/b4/The_Sun_by_the_Atmospheric_Imaging_Assembly_of_NASA%27s_Solar_Dynamics_Observatory_-_20100819.jpg" },
+                    { n: "Merkurius", u: "1", s: "4,879 km", a: "Eksosfer Tipis", d: "Planet terkecil dan terdekat.", img: "https://upload.wikimedia.org/wikipedia/commons/4/4a/Mercury_in_true_color.jpg" },
+                    { n: "Venus", u: "2", s: "12,104 km", a: "Tebal (Karbon Dioksida)", d: "Planet terpanas di tata surya.", img: "https://upload.wikimedia.org/wikipedia/commons/0/08/Venus_from_Mariner_10.jpg" },
+                    { n: "Bumi", u: "3", s: "12,742 km", a: "Nitrogen & Oksigen", d: "Satu-satunya planet berpenghuni.", img: "https://upload.wikimedia.org/wikipedia/commons/9/97/The_Earth_seen_from_Apollo_17.jpg" },
+                    { n: "Mars", u: "4", s: "6,779 km", a: "Tipis (Karbon Dioksida)", d: "Dikenal sebagai planet merah.", img: "https://upload.wikimedia.org/wikipedia/commons/0/02/OSIRIS_Mars_true_color.jpg" },
+                    { n: "Jupiter", u: "5", s: "139,820 km", a: "Hidrogen & Helium", d: "Raksasa gas terbesar.", img: "https://upload.wikimedia.org/wikipedia/commons/2/2b/Jupiter_and_its_shrunken_Great_Red_Spot.jpg" },
+                    { n: "Saturnus", u: "6", s: "116,460 km", a: "Hidrogen & Helium", d: "Memiliki sistem cincin spektakuler.", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQmIbyeuYsFpDJdY_RGkx4Q7AEYKVHvqxq1sIKFEjMJ8A&s=10" },
+                    { n: "Uranus", u: "7", s: "50,724 km", a: "Metana & Hidrogen", d: "Raksasa es yang dingin.", img: "https://upload.wikimedia.org/wikipedia/commons/3/3d/Uranus2.jpg" },
+                    { n: "Neptunus", u: "8", s: "49,244 km", a: "Hidrogen & Metana", d: "Planet paling jauh dan berangin.", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRsdamLxKo7TbZTlL6enZTs3d9r1yCwQXejoG2XzPIpwrUGj-eP622xkiVd&s=10" }
+                ]
+            },
+            andromeda: {
+                title: "Index Galaksi Andromeda",
+                items: [
+                    { n: "Inti Andromeda", u: "Pusat", s: "15,000 thn cahaya", a: "Radiasi Tinggi", d: "Pusat padat dengan inti ganda.", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRsxAR4B3dB-nSX-zWfBlqgAliWS8GzBE8VfZmgk6r3Aw&s=10" },
+                    { n: "M32", u: "Satelit 1", s: "6,500 thn cahaya", a: "Vakum", d: "Galaksi kerdil tetangga Andromeda.", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThFWBqQkLaN1p-XEVwFcYTOZ-Fe_xtlY3JCBrRRLfDCQ&s=10" },
+                    { n: "Bintang Biru", u: "Lengan Spiral", s: "50x Matahari", a: "Plasma Panas", d: "Bintang muda masif yang sangat terang.", img: "https://www.harapanrakyat.com/wp-content/uploads/2025/12/Fenomena-Menarik-Bintang-di-Galaksi-Andromeda.jpg" }
+                ]
+            }
+        };
+
+        function goToGalaxy(key) {
+            document.getElementById('page-home').classList.add('hidden');
+            const data = galaxyData[key];
+            document.getElementById('display-title').innerText = data.title;
+            const grid = document.getElementById('item-grid');
+            grid.innerHTML = "";
+            data.items.forEach(item => {
+                grid.innerHTML += `
+                    <div class="card ${key === 'andromeda' ? 'andromeda-theme' : ''}" onclick="showIndex('${key}', '${item.n}')">
+                        <img src="${item.img}">
+                        <h3>${item.n}</h3>
+                        <p style="font-size:0.8rem; color:var(--light-blue)">Lihat Index Detail</p>
+                    </div>
+                `;
+            });
+            document.getElementById('page-content').classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        function goHome() {
+            document.getElementById('page-content').classList.add('hidden');
+            document.getElementById('page-home').classList.remove('hidden');
+        }
+
+        function showIndex(key, name) {
+            const item = galaxyData[key].items.find(i => i.n === name);
+            const body = document.getElementById('modal-body');
+            body.innerHTML = `
+                <img src="${item.img}" class="modal-img">
+                <h2 style="color:var(--light-blue); margin:0;">${item.n}</h2>
+                <p style="font-size:0.9rem; margin-bottom:20px;">${item.d}</p>
+                <table class="index-table">
+                    <tr><td>Urutan/Lokasi</td><td>${item.u}</td></tr>
+                    <tr><td>Ukuran (Diameter)</td><td>${item.s}</td></tr>
+                    <tr><td>Komposisi Atmosfer</td><td>${item.a}</td></tr>
+                </table>
+            `;
+            document.getElementById('infoModal').style.display = 'block';
+        }
+
+        function closeModal() { document.getElementById('infoModal').style.display = 'none'; }
+    </script>
+</body>
+</html>
